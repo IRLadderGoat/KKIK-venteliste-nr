@@ -17,6 +17,8 @@ with requests.Session() as s:
         '__VIEWSTATEGENERATOR':soup.find('input', id='__VIEWSTATEGENERATOR')['value'],
         '__EVENTVALIDATION':soup.find('input', id='__EVENTVALIDATION')['value']
     }
+
+    asp_sesh = 'ASP.NET_SessionId='+str(s.cookies)
     request_headers = {
         'Host':'www.kollegierneskontor.dk',
         'Connection':'keep-alive',
@@ -34,9 +36,9 @@ with requests.Session() as s:
         'Referer': 'https://www.kollegierneskontor.dk/default.aspx?func=kkikportal.login&lang=DK',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'da-DK,da;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Cookie':s.cookies.values(),
+        'Cookie':asp_sesh,
     }
-    print(request_headers)
+    print(asp_sesh)
 
     #r = s.post(url, data = login_data, headers = dict(referer = url))
 #r = s.get('https://www.kollegierneskontor.dk/default.aspx?func=kkikportal.housingrequests&lang=DK')
