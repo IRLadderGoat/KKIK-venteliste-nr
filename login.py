@@ -18,15 +18,14 @@ with requests.Session() as s:
         '__EVENTVALIDATION':soup.find('input', id='__EVENTVALIDATION')['value']
     }
 
-    asp_sesh = 'ASP.NET_SessionId='+str(s.cookies)
     request_headers = {
         'Host':'www.kollegierneskontor.dk',
         'Connection':'keep-alive',
         'Content-Length': '7215',
         'Cache-Control': 'max-age=0',
         'Origin': 'https://www.kollegierneskontor.dk',
-        'Upgrade-Insecure-Requests': 1,
-        'DNT': 1,
+        'Upgrade-Insecure-Requests': '1',
+        'DNT': '1',
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36',
         'Sec-Fetch-Mode': 'navigate',
@@ -36,12 +35,11 @@ with requests.Session() as s:
         'Referer': 'https://www.kollegierneskontor.dk/default.aspx?func=kkikportal.login&lang=DK',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'da-DK,da;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Cookie':asp_sesh,
+        'Cookie':'ASP.NET_SessionId='+str(s.cookies.pop('ASP.NET_SessionId')),
     }
-    print(asp_sesh)
 
-    #r = s.post(url, data = login_data, headers = dict(referer = url))
-#r = s.get('https://www.kollegierneskontor.dk/default.aspx?func=kkikportal.housingrequests&lang=DK')
-    #print(r)
+    r = s.post(url, data = login_data, headers = request_headers)
+    #r = s.get('https://www.kollegierneskontor.dk/default.aspx?func=kkikportal.housingrequests&lang=DK')
+    print()
 
 #scraper.saveData(scraper.getData(r.content))
