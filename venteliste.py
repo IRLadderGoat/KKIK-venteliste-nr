@@ -1,10 +1,14 @@
 import os
 import re
 import csv
+import logging
 import requests
 import argparse
 import datetime as dt
 from bs4 import BeautifulSoup as bs
+
+log = logging.getLogger(__name__)
+logging.getLogger('pyactiveresource').setLevel(logging.WARNING)
 
 def login_and_get(username,password):
     url = 'https://www.kollegierneskontor.dk/default.aspx?func=kkikportal.login&lang=DK'
@@ -48,10 +52,11 @@ def getData(url):
     list_rentals.append('Date')
     list_wait_list_number.append(dt.datetime.now().date().isoformat())
 
-    # Loops through the found rentals 
+    # Loops through the found rentals
     for i in soup.find_all(class_='row header'):
         list_rentals.append(i.contents[7].get_text().strip())
         list_wait_list_number.append(i.contents[19].get_text().strip())
+    log.info(f'Found\n{list_rentals}')
     return (list_rentals, list_wait_list_number)
 
 def saveData(data_to_save):
@@ -59,19 +64,27 @@ def saveData(data_to_save):
         if os.stat('data.csv').st_size <= 0:
             head_writer = csv.DictWriter(csvFile, fieldnames=data_to_save[0])
             head_writer.writeheader()
-            print("Wrote headers:", data_to_save[0])
+            log.info('formatted data.csv with %d headers', len(data_to_save[0]))
         row_writer = csv.writer(csvFile)
         row_writer.writerow(data_to_save[1])
         csvFile.close()
-    print("Wrote data:", data_to_save[1])
+    log.info('Wrote data:\n%s',data_to_save[1])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--username', help='KKIK Username', required=True)
     parser.add_argument('-p', '--password', help='KKIK Password', required=True)
+    parser.add_argument('-l', '--log', help='Debug level', default='WARNING',)
     args = parser.parse_args()
+
+    numeric_level = getattr(logging, args.log.upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % args.log)
+    logging.basicConfig(format='%(levelname)s\t%(message)s', level=numeric_level)
 
     response = login_and_get(args.username,args.password)
     if 'Boligønsker' in response.text:
+        log.info('Succesfully logged in')
         saveData(getData(response.content))
-
+    else:
+        log.error('Couldn\'t log in')
