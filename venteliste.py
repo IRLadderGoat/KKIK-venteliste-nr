@@ -38,7 +38,7 @@ def login_and_get(username,password):
             else:
                 data[name[0]] = ""
     data['Page$ctl08$Main$ctl04$form$loginUserName'] = username
-    data['Page$ctl08$Main$ctl04$form$loginPassword'] = password
+    data['Page$ctl08$Main$ctl04$form$loginPassword'] = password[:20]
 
     r = s.post(url, data = data, headers = request_headers, params = {'Referer': site.url})
     return r
